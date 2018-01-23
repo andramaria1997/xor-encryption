@@ -1,0 +1,22 @@
+		***** README *****
+
+
+	Functii auxiliare:
+
+	---> get_length_string: functie care determina lungimea unui sir
+		* se verifica fiecare octet din string, numarand pana la intalnirea lui 0 *
+	---> convert_hex_string: functie care converteste un string din ascii in hexa, returnand noua lungime a sirului
+		* pentru litere se scade 87, pentru cifre se scade 48 din valoarea unui octet, astfel ramanand valorile hexa ; un octet devine un nibble, apoi cei 2 nibble sunt 'lipiti' si inlocuiti in sir *
+	---> convert: functie care decodifica 4 caractere din baza 32 prin scaderea diferentei de la valoarea ASCII la valoarea caracterului in baza 32
+		* scade din fiecare octet 65 daca este litera, 24 daca este cifra ; din 4 x 8 biti formeaza 4 x 5 biti ; cei 20 de biti sunt apoi aliniati la inceputul registrului prin shiftari ; sfidez little endian prin rearanjarea octetilor in eax in ordinea in care am nevoie sa fie *
+
+	TASK1 (xor_strings): primeste 2 parametri, stringul (mutat in ebx) si cheia (mutata in edx). Se copiaza cate un octet din fiecare, se face xor intre ele, apoi se inlocuieste in sir. Sirurile sunt parcurse prin incrementarea registrului 'esi'.
+
+	TASK2 (rolling_xor): sirul primit ca parametru este mutat in ebx. Se calculeaza lungimea sirului folosind functia 'get_length_string'. Ne 'mutam' la ultimul caracter din sir (add ebx, eax ; dec ebx) si se parcurge sirul in ordine inversa (dec ebx). Se face xor intre caracterul curent si cel precedent din sir (adica intre caracterul catre care pointeaza ebx si caracterul catre care pointeaza ebx-1), apoi se inlocuieste caracterul din sir cu rezultatul.
+
+	TASK3 (xor_hex_strings): converteste mesajul si cheia in valori hexa prin apeluri ale functiei 'convert_hex_string'. Apoi se face xor intre cheie si mesaj utilizand functia de la task1.
+
+	TASK4 (base32decode): se convertesc cate 8 caractere in loop ul 'parcurge'. In esi se afla sirul. Folosesc 2 contori: edi pentru citirea caracterelor si ebx pentru inlocuirea lor (ebx "ramane in urma"). Pun cate 4 caractere in eax, apelez functia 'convert' si obtin primii 20 de biti. Primii 16 sunt inlocuiti in sir, cei 4 biti ramasi sunt mutati in partea superioara a lui cl. Mut urmatoarele 4 caractere in eax, apelez functia 'convert'. Am obtinut urmatorii 20 de biti. Primii 4 ii mut in partea inferioara a lui cl, astfel formand un octet intreg si inlocuindu-l in sir, apoi fiind inlocuiti si cei 16 biti ramasi.
+
+	TASK5 (bruteforce_singlebyte_xor): se incearca toate cheile posibile intre 0 si 255. In al se afla cheia. In ebx sirul. Se face xor bit cu bit pe intregul sir, apoi se verifica daca contine 'force', prin cautarea literelor 'f','o','r','c','e' in aceasta ordine in sir (ex: se cauta f, dupa se cauta o, dupa daca nu gaseste r cauta din nou f, si tot asa). Cand se gaseste cuvantul 'force', functia returneaza cheia si nu mai restaureaza mesajul, lasandu-l decriptat.
+
